@@ -1,0 +1,693 @@
+/*
+Project Name : DX BALL Remastered ;
+*/
+
+# include "iGraphics.h"
+
+/*
+SCREEN
+*/
+
+#define screenWidth 1000
+#define screenHeight 600
+char  name[50] = "DX Ball Remastered";
+
+/*
+Background
+*/
+
+/*
+Ball
+*/
+
+char ballImage[50] = "Image\\DXBall20.bmp";
+int ballPosition_X = (int)screenWidth / 2;
+int ballPosition_Y = 19;
+int ballWidth = 20;
+int ballHeight = 20;
+int ballSpeed_X = 5;
+int ballSpeed_Y = 7;
+int ballDirection = 1;
+int ballPoint = 0;
+
+
+/*
+Paddle
+*/
+char paddleImage[50] = "Image\\Paddle.bmp";
+int paddlePosition_X = (int)screenWidth / 2 - 150 / 2;
+int paddlePosition_Y = 0;
+int paddleWidth = 150;
+int paddleHeight = 19;
+int paddleSpeed = 20;
+
+/////// paddle2 
+
+char paddleImage2[50] = "Image\\Paddle.bmp";
+int paddlePosition2_X = 425;
+int paddlePosition2_Y = 581;
+int paddleWidth2 = 150;
+int paddleHeight2 = 19;
+int paddleSpeed2 = 20;
+
+
+/*
+Brick
+*/
+
+char brickImage[50] = "Image\\brick.bmp";
+
+int brickWidth = 50;
+int brickHeight = 25;
+int brickGap_X;
+int brickGap_Y;
+int brickFirst_X = 250;
+int brickFirst_Y = 500;
+#define brickRow 7
+#define brickCol 13
+
+struct Brick
+{
+	int brickPosition_X;
+	int brickPosition_Y;
+	bool showBrick = true;
+
+}brick[brickRow][brickCol];
+
+
+
+//////////         Loop Parameter
+//////////
+int i, j;
+
+//////// restart 
+bool gameOn = false;
+
+
+/////////
+////////
+bool gameOver = false;
+char textTest[50] = "Say Who gives a fuck";
+#define PI 3.1415926535898
+int qeta = 0;
+int v = 8;
+
+////////
+/////// Power up 
+
+////// speedball
+char powerUp[50] = "image\\speedBall.bmp";
+int speedBallX = 100;
+int speedBallY = 500;
+bool speedBallActive = true;
+bool sb;
+
+////// paddleBig
+char paddleBig[50] = "image\\paddleBig.bmp";
+char bigPaddle[50] = "image\\bigPaddle.bmp";
+int paddleBigX = 300;
+int paddleBigY = 500;
+bool paddleBigActive = true;
+bool pb;
+
+//// shoot
+
+char paddleBig2[50] = "image\\paddleBig.bmp";
+char bullet[50] = "image\\bullet.bmp";
+int paddleBigX2 = 700;
+int paddleBigY2 = 500;
+int bulletX;
+int bulletY;
+bool shootActive = true;
+bool st;
+bool st2;
+
+
+
+///// life
+
+char lifeImage[50] = "image\\Paddlelife.bmp";
+int life = 3;
+
+
+int mposx, mposy;
+
+void speedBallActivem()
+{
+	if (ballSpeed_X < 0 && ballSpeed_Y < 0)
+	{
+		ballSpeed_X = -15;
+		ballSpeed_Y = -15;
+	}
+	if (ballSpeed_X < 0 && ballSpeed_Y > 0)
+	{
+		ballSpeed_X = -15;
+		ballSpeed_Y = 15;
+	}
+	if (ballSpeed_X > 0 && ballSpeed_Y < 0)
+	{
+		ballSpeed_X = 15;
+		ballSpeed_Y = -15;
+	}
+	if (ballSpeed_X > 0 && ballSpeed_Y > 0)
+	{
+		ballSpeed_X = 15;
+		ballSpeed_Y = 15;
+	}
+
+	v = 20;
+	speedBallActive = false;
+}
+
+void paddleBigActivem()
+{
+	printf("I m in");
+	paddleWidth = 220;
+	paddleBigActive = false;
+}
+
+void shootActivem()
+{
+	if (st2)
+	{
+		static int bulletX = paddlePosition_X;
+		static int bulletY = paddlePosition_Y +5;
+		iShowBMP(bulletX, bulletY , bullet);
+		bulletY = bulletY + 5;
+	}	
+}
+
+void powerUpsm(int X , int Y)
+{
+	if (Y <= 19 )
+	{
+		if (X >= paddlePosition_X && X <= paddlePosition_X + paddleWidth)
+		{
+			if (sb)
+			{
+				speedBallActivem();
+			}
+			if (pb)
+			{
+				paddleBigActivem();
+			}
+			if (st)
+			{
+				shootActivem();
+			}
+		}
+	}
+
+}
+
+void powerUps()
+{
+	if (brick[0][0].showBrick == false && speedBallActive)
+	{
+		iShowBMP(speedBallX, speedBallY, powerUp);
+		speedBallY = speedBallY - 5;
+		sb = true;
+		powerUpsm(speedBallX, speedBallY);	
+	}
+	if (brick[2][1].showBrick == false && paddleBigActive)
+	{
+		iShowBMP(paddleBigX, paddleBigY, paddleBig);
+		paddleBigY = paddleBigY - 5;
+		pb = true;
+		powerUpsm(paddleBigX, paddleBigY);
+	}
+	if (brick[0][1].showBrick == false && shootActive)
+	{
+		iShowBMP(paddleBigX2, paddleBigY2, paddleBig2);
+		paddleBigY2 = paddleBigY2 - 5;
+		st = true;
+		powerUpsm(paddleBigX2, paddleBigY2);
+	}
+	
+
+}
+
+
+void lifeCount()
+{
+	if (life == 3)
+	{
+		iShowBMP(700, 570, lifeImage);
+		iShowBMP(790, 570, lifeImage);
+		iShowBMP(880, 570, lifeImage);
+	}
+	else if (life == 2)
+	{
+		iShowBMP(790, 570, lifeImage);
+		iShowBMP(880, 570, lifeImage);
+	}
+	else if(life == 1)
+	{
+		iShowBMP(880, 570, lifeImage);
+	}
+
+}
+
+void gameOverPage()
+{
+	iShowBMP(0, 0, "image\\Game_Over.bmp");
+}
+
+void restart()
+{
+	life--;
+	ballPosition_X = (int)screenWidth / 2;
+	ballPosition_Y = paddleHeight;
+
+	ballSpeed_X = 5;
+	ballSpeed_Y = 7;
+	v = 10;
+
+	paddlePosition_X = (int)screenWidth / 2 - paddleWidth / 2;
+	paddlePosition_Y = 0;
+	paddleWidth = 150;
+
+	gameOn = false;
+
+	if (life == 0)
+	{
+		gameOver = true;
+		gameOverPage();
+	}
+}
+
+
+
+
+/*
+BrickManagement
+*/
+
+void brickPattern()
+{
+
+
+	for (i = 0, brickGap_Y = 0; i < brickRow; i++, brickGap_Y = brickGap_Y - brickHeight)
+	{
+		for (j = 0, brickGap_X = 0; j < brickCol; j++, brickGap_X = brickGap_X + brickWidth )
+		{
+
+			brick[i][j].brickPosition_X = brickFirst_X + brickGap_X ;
+			brick[i][j].brickPosition_Y = brickFirst_Y + brickGap_Y ;
+
+			if (brick[i][j].showBrick == true)
+			{
+				iShowBMP(brick[i][j].brickPosition_X, brick[i][j].brickPosition_Y, brickImage);
+				//iFilledRectangle(brick[i][j].brickPosition_X, brick[i][j].brickPosition_Y, 150, 30);
+			}
+
+
+
+		}
+	}
+}
+
+
+////////////
+//////////// Batman Design 
+void batDesign()
+{
+	brick[0][4].showBrick = false;
+	brick[0][5].showBrick = false;
+	brick[0][6].showBrick = false;
+	brick[0][7].showBrick = false;
+	brick[1][4].showBrick = false;
+	brick[1][7].showBrick = false;
+	for (i = 2; i < brickRow; i++)
+	{
+		for (j = 0; j < i - 1; j++)
+		{
+			brick[i][j].showBrick = false;
+		}
+	}
+	for (i = 0; i < 6; i++)
+	{
+		brick[6][7 + i].showBrick = false;
+	}
+	for (i = 0; i < 4; i++)
+	{
+		brick[5][9 + i].showBrick = false;
+	}
+	for (i = 0; i < 3; i++)
+	{
+		brick[4][10 + i].showBrick = false;
+	}
+	brick[3][11].showBrick = false;
+	brick[3][12].showBrick = false;
+	brick[2][12].showBrick = false;
+}
+
+//////////////
+//////////// Ball Direction 
+void ballDirectionDefine()
+{
+
+		ballPosition_X += ballSpeed_X;
+		ballPosition_Y += ballSpeed_Y;
+
+}
+////////
+/////////							collision
+/////////////
+void collision()
+{
+
+	for (i = 0; i < brickRow; i++)
+	{
+		for (j = 0; j < brickCol; j++)
+		{
+			if (ballPosition_X + ballWidth >= brick[i][j].brickPosition_X && ballPosition_X <= brick[i][j].brickPosition_X + brickWidth && brick[i][j].showBrick == true)
+			{
+
+
+				ballPoint = ballPosition_Y +10;
+
+
+				if (ballPoint >= brick[i][j].brickPosition_Y &&  ballPoint <= brick[i][j].brickPosition_Y + brickHeight)
+				{
+					printf("2nd %d\t", ballDirection);
+					brick[i][j].showBrick = false;
+
+
+					ballSpeed_Y = -ballSpeed_Y;
+					break;
+				}
+
+			}
+
+
+
+			else if (ballPosition_Y + ballHeight >= brick[i][j].brickPosition_Y && ballPosition_Y <= brick[i][j].brickPosition_Y + brickHeight  && brick[i][j].showBrick == true)
+			{
+
+
+				//ballPoint = ballPosition_X + 10;
+				if (ballPosition_X +10 >= brick[i][j].brickPosition_X && ballPosition_X + 10 <= brick[i][j].brickPosition_X + brickWidth)
+				{
+				printf("1st %d\t", ballDirection);
+				brick[i][j].showBrick = false;
+
+
+				ballSpeed_X = -ballSpeed_X;
+
+				break;
+				}
+
+			}
+
+
+
+		}
+
+	}
+}
+
+void screenBorder()
+{
+	// Direction Changing 
+
+	if (ballPosition_X <= 0)						// Left Border 
+	{
+
+		ballSpeed_X = -ballSpeed_X;
+		
+		
+	}
+	else if (ballPosition_X >= screenWidth - ballWidth)  //Right Border 
+	{
+
+		ballSpeed_X = -ballSpeed_X;
+		
+	}
+
+	else if (ballPosition_Y >= screenHeight - ballHeight) //Upper Border
+	{
+		ballSpeed_Y = -ballSpeed_Y;
+	}
+
+}
+
+void paddle()
+{
+	if (ballPosition_Y <= -20)										//Paddle
+	{
+		restart();
+	}
+	if (ballPosition_Y <= 19)
+	{
+
+		ballPoint = ballPosition_X + 10;
+
+		if (ballPoint >= paddlePosition_X && ballPoint <= paddlePosition_X + paddleWidth)
+		{
+			if (paddleWidth == 150)
+			{
+				qeta = (paddlePosition_X + paddleWidth - ballPosition_X) + 15;
+			}
+			if (paddleWidth == 220)
+			{
+				qeta = (paddlePosition_X + paddleWidth - ballPosition_X) - 30;
+			}
+
+			ballSpeed_X = (int)v*cos(qeta*PI/ 180);
+			ballSpeed_Y = (int)v*sin(qeta*PI/ 180);
+
+			printf("x =%d ", ballSpeed_X);
+			printf("y =%d ", ballSpeed_Y);
+			printf("qeta = %d", qeta);
+
+		}
+
+	}
+}
+
+void paddle2()
+{
+	
+	if (ballPosition_Y >= 600+30)										//Paddle2
+	{
+	exit(0);
+	}
+	if (ballPosition_Y >= 600-39)
+	{
+	ballPoint = ballPosition_X;
+
+	if (ballPoint >= paddlePosition_X && ballPoint <= paddlePosition_X + 45)
+	{
+	ballDirection = 6;
+	}
+	else if (ballPoint > paddlePosition_X + 45 && ballPoint <= paddlePosition_X + 105)
+	{
+	ballDirection = 5;
+	}
+	else if (ballPoint > paddlePosition_X + 105 && ballPoint <= paddlePosition_X + 150)
+	{
+	ballDirection = 4;
+	}
+
+	}
+
+	
+}
+
+/*
+BallMovement
+*/
+
+void ballMovememnt()
+{
+	if (gameOn)
+	{
+		ballDirectionDefine();
+
+		collision();
+
+		screenBorder();
+
+		paddle();
+	}
+
+}
+
+
+
+
+
+
+/*
+function iDraw() is called again and again by the system.
+*/
+void iDraw()
+{
+	//place your drawing codes here
+	iClear();
+	batDesign();
+	lifeCount();
+	powerUps();
+	if (gameOver)
+	{
+		gameOverPage();
+	}
+
+	iShowBMP2(ballPosition_X, ballPosition_Y, ballImage, 0);
+	//iFilledCircle(ballPosition_X, ballPosition_Y, 15);
+
+	if (paddleWidth == 150)
+	{
+		iShowBMP2(paddlePosition_X, paddlePosition_Y, paddleImage, 0);
+	}
+	if (paddleWidth == 220)
+	{
+		iShowBMP2(paddlePosition_X, paddlePosition_Y, bigPaddle, 0);
+	}
+	
+	//iShowBMP2(paddlePosition2_X, paddlePosition2_Y, paddleImage2, 0);
+
+	brickPattern();
+}
+
+
+/*
+function iMouseMove() is called when the user presses and drags the mouse.
+(mx, my) is the position where the mouse pointer is.
+*/
+void iMouseMove(int mx, int my)
+{
+	//place your codes here
+}
+
+/*
+function iMouse() is called when the user presses/releases the mouse.
+(mx, my) is the position where the mouse pointer is.
+*/
+void iMouse(int button, int state, int mx, int my)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		//place your codes here
+	}
+	if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		//place your codes here
+	}
+}
+/*iPassiveMouseMove is called to detect and use
+the mouse point without pressing any button */
+
+void iPassiveMouseMove(int mx, int my)
+{
+	//place your code here
+
+	mposx = mx;
+	mposy = my;
+	if (mx == 2){}        /*Something to do with mx*/
+	else if (my == 2){}   /*Something to do with my*/
+
+}
+
+/*
+function iKeyboard() is called whenever the user hits a key in keyboard.
+key- holds the ASCII value of the key pressed.
+*/
+void iKeyboard(unsigned char key)
+{
+	if (key == 'd' )
+	{
+		if ( paddlePosition_X < screenWidth - paddleWidth )
+		{
+			paddlePosition_X += paddleSpeed;
+
+			if (!gameOn)
+			{
+				ballPosition_X += paddleSpeed+2;
+			}
+			
+			//paddlePosition2_X += paddleSpeed;
+
+		}
+		
+	}
+	else if (key == 'a' )
+	{
+		if (paddlePosition_X > 5)
+		{
+			paddlePosition_X -= paddleSpeed;
+
+			if (!gameOn)
+			{
+				ballPosition_X -= paddleSpeed+2;
+			}
+			
+			//paddlePosition2_X -= paddleSpeed;
+		}
+		
+	}
+	if (key == 'p')
+	{
+		iPauseTimer(0);
+	}
+	if (key == 'r')
+	{
+		iResumeTimer(0);
+	}
+	if (key == ' ')
+	{
+		gameOn = true;
+	}
+	if (key == 'i')
+	{
+		brick[0][0].showBrick = false;
+	}
+	if (key == 'j')
+	{
+		brick[2][1].showBrick = false;
+	}
+	if (key == 'k')
+	{
+		brick[0][1].showBrick = false;
+	}
+	if (key == 'c')
+	{
+		shootActivem();
+		st2 = true;
+	}
+
+
+
+	//place your codes for other keys here
+}
+
+/*
+function iSpecialKeyboard() is called whenver user hits special keys like-
+function keys, home, end, pg up, pg down, arraows etc. you have to use
+appropriate constants to detect them. A list is:
+GLUT_KEY_F1, GLUT_KEY_F2, GLUT_KEY_F3, GLUT_KEY_F4, GLUT_KEY_F5, GLUT_KEY_F6,
+GLUT_KEY_F7, GLUT_KEY_F8, GLUT_KEY_F9, GLUT_KEY_F10, GLUT_KEY_F11, GLUT_KEY_F12,
+GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN, GLUT_KEY_PAGE UP,
+GLUT_KEY_PAGE DOWN, GLUT_KEY_HOME, GLUT_KEY_END, GLUT_KEY_INSERT
+*/
+void iSpecialKeyboard(unsigned char key)
+{
+
+	if (key == GLUT_KEY_END)
+	{
+		exit(0);
+	}
+	//place your codes for other keys here
+}
+//
+int main()
+{
+	brickPattern() ;
+	iSetTimer(25, ballMovememnt);
+
+
+	//place your own initialization codes here.
+	iInitialize(screenWidth, screenHeight, name);
+	return 0;
+}
